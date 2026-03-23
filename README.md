@@ -179,7 +179,7 @@ project_root/
 ├── Ex-sRNA-NF/                        # cloned repository
 │   └── main_sRNA.nf
 │
-├── exRNA_Species/                     # raw sequencing data
+├── exRNA_Species/                     # raw HTS input data
 │   ├── exRNA_Hsa_sRNA/                 
 │   │   ├── *.fastq.gz
 │   │   └── ...
@@ -263,7 +263,7 @@ Calculates Whittaker beta diversity separately for subsets of samples defined by
 > **Note:** 
 nextflow run main_sRNA.nf --w_seg "AWF,CL,LSW|LSF"
 ```
-> **Note:** Assumes this information is present in and consistent accross file names. The pipe operator can be used to group synonymous or biologically relevant samples in the same striation. Make sure such a grouping is grounded in the your biological question!
+> **Note:** Assumes this information is present in, and consistent accross file names. The pipe operator can be used to group synonymous or biologically relevant samples in the same segmentation. Make sure such a grouping is grounded in the your biological question!
 
 Output in `all_samples_beta_diversity.tsv`:
 
