@@ -46,7 +46,7 @@ Raw FASTQ reads
                         │
                         ├── tRNAscan-SE  (tRNA annotation)
                         ├── barrnap      (rRNA annotation)
-                        └── portAnnotations (miRNA, hairpin, TAS, TE, cDNA)
+                        └── portAnnotations ( Annotation FASTAs provided with the primary assembly)
                                 │
                                 └── BUILD_COMBINED_ANNOT_INDEX
                                     (label + merge feature FASTAs per organism,
@@ -69,6 +69,8 @@ Raw FASTQ reads
 ---
 
 ## Requirements
+
+This pipeline uses minimal custom dependencies to maximize portability and speed of deployment.
 
 ### Software dependencies
 
@@ -158,19 +160,19 @@ exRNA-NF/
 │   ├── quantify_srna_diversity.nf
 │   └── merge_diversity_outputs.nf
 │
-└── bin/                          # Python scripts (auto-added to $PATH by Nextflow)
+└── bin/                          # Python scripts (automatically added to $PATH by Nextflow)
     ├── quantify_srna_diversity.py
     ├── merge_diversity_outputs.py
     └── compare_fasta.py
 ```
 
-> **Note:** Input data (`exRNA_Species/`, `genome/`) and output directories (`results/`, `work/`) are not stored in the repository. See [Input data organisation](#input-data-organisation) for the expected directory layout alongside the repository.
+> **Note:** Input data and output directories (`results/`, `work/`) are not stored in the repository. See [Input data organisation](#input-data-organisation) for the expected directory layout alongside the repository.
 
 ---
 
 ## Input data organisation
 
-The pipeline expects the following directory layout **alongside** the cloned repository. These directories are excluded from version control by `.gitignore`.
+The pipeline expects the following directory layout **alongside** the cloned repository.
 
 ```
 project_root/
