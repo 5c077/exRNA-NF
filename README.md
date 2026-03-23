@@ -26,7 +26,7 @@ A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversi
 
 Ex-sRNA-NF processes single-end small RNA sequencing data from extracellular fractions across multiple species in a single run. The pipeline performs adapter trimming, genome alignment, size distribution profiling, competitive alignment to a combined per-organism annotation index, and fractional feature-type quantification with alpha and beta diversity reporting.
 
-The pipeline is designed around the principle of **competitive alignment** — all sRNA feature FASTAs for a given organism (miRNA, hairpin, TAS, TE, cDNA, tRNA, rRNA) are merged into a single labeled index before alignment. This ensures that reads must compete across all feature types simultaneously, producing unbiased fractional counts and meaningful diversity estimates.
+The pipeline is designed around the principle of **competitive alignment**. All sRNA feature FASTAs for a given organism (miRNA, hairpin, cDNA, tRNA, rRNA, etc.) are merged into a single labeled index before alignment. This allows read alignments to compete across all feature types simultaneously, producing unbiased fractional counts and meaningful diversity estimates.
 
 ---
 
