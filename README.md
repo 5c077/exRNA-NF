@@ -126,14 +126,14 @@ Using conda (recommended for local):
 
 ```bash
 conda env create -f environment.yml
-conda activate ex-srna-nf
+conda activate exRNA-nf
 ```
 
 Or using mamba client for a faster resolve:
 
 ```bash
 mamba env create -f environment.yml
-mamba activate ex-srna-nf
+mamba activate exRNA-nf
 ```
 
 ### 4. Verify installation
@@ -213,7 +213,7 @@ The pipeline expects the following directory layout **alongside** the cloned rep
 
 ```
 project_root/
-├── Ex-sRNA-NF/                        # cloned repository
+├── exRNA-NF/                          # cloned repository
 │   └── main_sRNA.nf
 │
 ├── exRNA_Species/                     # raw HTS input data
@@ -354,7 +354,7 @@ nextflow run Ex-sRNA-NF/main_sRNA.nf \
 
 ### SLURM cluster
 
-Set the executor in `nextflow.config`:
+Modify for the institution profile in `nextflow.config`:
 
 ```nextflow
 profiles {
