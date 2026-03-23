@@ -213,7 +213,7 @@ project_root/
 
 ### Naming convention
 
-Library FASTQ files must follow the pattern `<OrganismPrefix>_<...>.fastq.gz` where `<OrganismPrefix>` is the first `_`-delimited token and must match the start of the corresponding genome directory name. For example:
+Library FASTQ files need to follow the pattern `<OrganismPrefix>_<...>.fastq.gz` where `<OrganismPrefix>` is the first `_`-delimited token and should match the start of the corresponding genome directory name. For example:
 
 | FASTQ prefix | Matches genome directory |
 |---|---|
