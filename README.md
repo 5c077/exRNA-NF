@@ -449,7 +449,7 @@ Normalized H interpretation guide:
 | Bray-Curtis | Σ\|p₁ₖ−p₂ₖ\| / Σ(p₁ₖ+p₂ₖ) | 0–1 | Ordination, clustering, widely understood |
 | Aitchison | Euclidean in CLR space | 0 → ∞ | Statistically rigorous for compositional data |
 
-Use **Aitchison distance** as the primary metric for PERMANOVA and ordination. Use **Bray-Curtis** as a supplementary metric for visual presentation.
+The **Aitchison distance** is a great primary metric for PERMANOVA and ordination. Use **Bray-Curtis** as a supplementary metric for downstream visualization.
 
 ---
 
