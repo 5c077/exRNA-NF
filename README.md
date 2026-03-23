@@ -496,7 +496,7 @@ find work/ -name "*_bowtie_build.log" | \
 
 **`samtools sort: failed to read header from "-"`**
 
-bowtie2 produced no output. Usually caused by the index not being staged correctly into the `ALIGN_TO_COMBINED_ANNOTATIONS` work directory. Check that the `index/` subdirectory is populated:
+bowtie2 produced no output. The usual cause is the index was not staged correctly into the `ALIGN_TO_COMBINED_ANNOTATIONS` work directory. Check that the `index/` subdirectory is populated:
 
 ```bash
 find work/ -name "*_bowtie2_stats.txt" | head -1 | \
@@ -508,7 +508,7 @@ find work/ -name "*_bowtie2_stats.txt" | head -1 | \
 Windows-style line endings in input or output files. Fixed by the `.strip()` calls in `merge_diversity_outputs.py`. If they persist, convert files manually:
 
 ```bash
-sed -i 's/\r//' results/07_srna_diversity/all_samples_*.tsv
+sed -i 's/\r//' results/06_srna_diversity/all_samples_*.tsv
 ```
 
 **Pipeline cached incorrectly after code changes**
