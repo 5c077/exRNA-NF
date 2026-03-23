@@ -174,7 +174,7 @@ docker run --rm \
     -v ${DATA_DIR}/work:/pipeline/work \
     --cpus 36 \
     --memory 128g \
-    ex-srna-nf:latest \
+    exRNA-nf:latest \
     nextflow run main_sRNA.nf \
         -c nextflow.config \
         -resume
