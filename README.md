@@ -95,9 +95,9 @@ pysam
 
 All other Python dependencies use the standard library (`csv`, `math`, `collections`, `argparse`, `itertools`).
 
-### System requirements
+### System allocations
 
-- **RAM**: 24–48 GB recommended (48 GB required for large genomes such as *Lactuca sativa*)
+- **RAM**: 24–48 GB recommended (48 GB required for reasonably large genomes such as *Lactuca sativa*)
 - **CPU**: 8+ cores recommended; processes are configured to use up to 8 threads
 - **Storage**: ~50 GB per organism for genome indices; plan for 2–5× the size of your raw data for intermediate files
 
