@@ -11,7 +11,7 @@ A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversi
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Repository structure](#repository-structure)
-- [Input data organisation](#input-data-organisation)
+- [Input data organization](#input-data-organization)
 - [Parameters](#parameters)
 - [Running the pipeline](#running-the-pipeline)
 - [Output structure](#output-structure)
@@ -166,11 +166,11 @@ exRNA-NF/
     └── compare_fasta.py
 ```
 
-> **Note:** Input data and output directories (`results/`, `work/`) are not stored in the repository. See [Input data organisation](#input-data-organisation) for the expected directory layout alongside the repository.
+> **Note:** Input data and output directories (`results/`, `work/`) are not stored in the repository. See [Input data organization](#input-data-organization) for the expected directory layout alongside the repository.
 
 ---
 
-## Input data organisation
+## Input data organization
 
 The pipeline expects the following directory layout **alongside** the cloned repository.
 
@@ -276,7 +276,7 @@ whittaker_beta_LSW|LSF    0.2011    34
 
 ### `--exclude_prefix` — exclude sample libraries
 
-Excludes libraries whose filenames start with any of the specified prefixes. Useful for excluding organisms from analysis without modifying the reads glob.
+Excludes libraries whose filenames start with any of the specified prefixes. Useful for excluding organisms from analysis without modifying the reads glob expression.
 
 ```bash
 nextflow run main_sRNA.nf --exclude_prefix "Aco"
