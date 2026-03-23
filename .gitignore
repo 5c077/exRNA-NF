@@ -421,3 +421,6 @@ checksums.txt
 
 # The pipeline entrypoint is always committed
 !main_sRNA.nf
+
+!assets/
+!assets/*.png

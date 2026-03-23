@@ -1,6 +1,6 @@
 # Ex-sRNA-NF
 
-A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversity quantification of extracellular small RNA (sRNA) sequencing libraries across any number of genomes.
+A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversity quantification of small RNA (sRNA) sequencing libraries across any number of genomes.
 
 ---
 
@@ -24,7 +24,7 @@ A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversi
 
 ## Overview
 
-Ex-sRNA-NF processes single-end small RNA sequencing data from extracellular fractions (apoplastic wash fluid, conditioned liquid, leaf surface wash, etc.) across multiple plant species in a single run. The pipeline performs adapter trimming, genome alignment, size distribution profiling, competitive alignment to a combined per-organism annotation index, and fractional feature-type quantification with alpha and beta diversity reporting.
+Ex-sRNA-NF processes single-end small RNA sequencing data from extracellular fractions across multiple species in a single run. The pipeline performs adapter trimming, genome alignment, size distribution profiling, competitive alignment to a combined per-organism annotation index, and fractional feature-type quantification with alpha and beta diversity reporting.
 
 The pipeline is designed around the principle of **competitive alignment** — all sRNA feature FASTAs for a given organism (miRNA, hairpin, TAS, TE, cDNA, tRNA, rRNA) are merged into a single labeled index before alignment. This ensures that reads must compete across all feature types simultaneously, producing unbiased fractional counts and meaningful diversity estimates.
 
@@ -106,8 +106,8 @@ All other Python dependencies use the standard library (`csv`, `math`, `collecti
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/Ex-sRNA-NF.git
-cd Ex-sRNA-NF
+git clone https://github.com/<your-username>/exRNA-NF.git
+cd exRNA-NF
 ```
 
 ### 2. Install Nextflow
@@ -120,14 +120,14 @@ nextflow self-update
 
 ### 3. Install dependencies
 
-Using conda (recommended):
+Using conda (recommended for local):
 
 ```bash
 conda env create -f environment.yml
 conda activate ex-srna-nf
 ```
 
-Or using mamba for faster resolution:
+Or using mamba client for a faster resolve:
 
 ```bash
 mamba env create -f environment.yml
@@ -145,7 +145,7 @@ nextflow run main_sRNA.nf --help
 ## Repository structure
 
 ```
-Ex-sRNA-NF/
+exRNA-NF/
 ├── main_sRNA.nf                  # Main workflow entry point
 ├── nextflow.config               # Pipeline parameters and resource configs
 ├── environment.yml               # Conda environment specification
@@ -174,34 +174,39 @@ The pipeline expects the following directory layout **alongside** the cloned rep
 
 ```
 project_root/
-├── Ex-sRNA-NF/                   # cloned repository
+├── Ex-sRNA-NF/                        # cloned repository
 │   └── main_sRNA.nf
 │
-├── exRNA_Species/                # raw sequencing data
-│   ├── exRNA_Ath_sRNA/
-│   │   ├── Col0_Col0_AWF_R1_S25_R1_001.fastq.gz
+├── exRNA_Species/                     # raw sequencing data
+│   ├── exRNA_Hsa_sRNA/                 
+│   │   ├── *.fastq.gz
 │   │   └── ...
-│   ├── exRNA_Gma_sRNA/
-│   ├── exRNA_Hvu_sRNA/
-│   ├── exRNA_Lsa_sRNA/
-│   ├── exRNA_Osa_sRNA/
-│   ├── exRNA_Sly_sRNA/
-│   └── exRNA_Zma_sRNA/
+│   ├── exRNA_Mmu_sRNA/                
+│   │   ├── *.fastq.gz
+│   │   └── ...
+│   └── exRNA_Gga_sRNA/                
+│       ├── *.fastq.gz
+│       └── ...
 │
-└── genome/                       # reference genomes and annotation FASTAs
-    ├── Ath_TAIR10/
-    │   ├── Col0_TAIR10_genome.fa
-    │   ├── Col0_TAIR10_miRNA.fa
-    │   ├── Col0_TAIR10_hairpin.fa
-    │   ├── Col0_TAIR10_TAS.fa
-    │   ├── Col0_TAIR10_TE.fa
-    │   └── Col0_TAIR10_cDNA.fa
-    ├── Gma_Wm82v4/
-    ├── Hvu_Morexv3/
-    ├── Lsa_Salinas_V15/
-    ├── Osa_IRGSP10/
-    ├── Sly_v4/
-    └── Zma_B73v5/
+└── genome/                            # reference genomes and annotation FASTAs
+    ├── Hsa_GRCh38/
+    │   ├── Hsa_GRCh38_genome.fa
+    │   ├── Hsa_GRCh38_miRNA.fa
+    │   ├── Hsa_GRCh38_hairpin.fa
+    │   ├── Hsa_GRCh38_TE.fa
+    │   └── Hsa_GRCh38_cDNA.fa
+    ├── Mmu_GRCm39/
+    │   ├── Mmu_GRCm39_genome.fa
+    │   ├── Mmu_GRCm39_miRNA.fa
+    │   ├── Mmu_GRCm39_hairpin.fa
+    │   ├── Mmu_GRCm39_TE.fa
+    │   └── Mmu_GRCm39_cDNA.fa
+    └── Gga_GRCg7b/
+        ├── Gga_GRCg7b_genome.fa
+        ├── Gga_GRCg7b_miRNA.fa
+        ├── Gga_GRCg7b_hairpin.fa
+        ├── Gga_GRCg7b_TE.fa
+        └── Gga_GRCg7b_cDNA.fa
 ```
 
 ### Naming convention
@@ -252,9 +257,11 @@ All parameters are defined in `nextflow.config` and can be overridden at the com
 Calculates Whittaker beta diversity separately for subsets of samples defined by strings in their library names. Pipe-separated values within a token are treated as aliases for the same group.
 
 ```bash
-# Calculate Whittaker beta for AWF, CL, and LSW/LSF groups separately
+# Calculate Whittaker beta striated by tissue or sample origin
+> **Note:** 
 nextflow run main_sRNA.nf --w_seg "AWF,CL,LSW|LSF"
 ```
+> **Note:** Assumes this information is present in and consistent accross file names. The pipe operator can be used to group synonymous or biologically relevant samples in the same striation. Make sure such a grouping is grounded in the your biological question!
 
 Output in `all_samples_beta_diversity.tsv`:
 
@@ -267,7 +274,7 @@ whittaker_beta_LSW|LSF    0.2011    34
 
 ### `--exclude_prefix` — exclude sample libraries
 
-Excludes libraries whose filenames start with any of the specified prefixes. Useful for excluding organisms with incomplete annotations without modifying the reads glob.
+Excludes libraries whose filenames start with any of the specified prefixes. Useful for excluding organisms from analysis without modifying the reads glob.
 
 ```bash
 nextflow run main_sRNA.nf --exclude_prefix "Aco"
@@ -411,6 +418,10 @@ Three-section file containing Whittaker summary, Bray-Curtis dissimilarity matri
 
 ## Diversity metrics
 
+<p align="center">
+  <img src="assets/infographic.png" alt="Diversity Metrics" width="800"/>
+</p>
+
 ### Alpha diversity (within-sample)
 
 | Metric | Formula | Range | Best for |
@@ -439,34 +450,6 @@ Normalized H interpretation guide:
 Use **Aitchison distance** as the primary metric for PERMANOVA and ordination. Use **Bray-Curtis** as a supplementary metric for visual presentation.
 
 ---
-
-## Sanity checking annotation FASTAs
-
-The `bin/compare_fasta.py` script compares pipeline-generated tRNA or rRNA FASTAs against public database references. This is a standalone utility and is not part of the pipeline.
-
-```bash
-# Compare tRNA FASTA against GtRNAdb reference
-python3 bin/compare_fasta.py \
-    --query   results/annotations/tRNA/Col0_TAIR10_tRNA.fa \
-    --reference GtRNAdb_Arabidopsis_thaliana.fa \
-    --out     tRNA_comparison_report.tsv
-
-# Compare with pairwise alignment (slow, use --max_align to limit)
-python3 bin/compare_fasta.py \
-    --query     results/annotations/tRNA/Col0_TAIR10_tRNA.fa \
-    --reference GtRNAdb_Arabidopsis_thaliana.fa \
-    --align \
-    --identity  0.95 \
-    --max_align 300 \
-    --out       tRNA_alignment_report.tsv
-
-# Compare rRNA against SILVA (large files — skip --align)
-python3 bin/compare_fasta.py \
-    --query     results/annotations/rRNA/Col0_TAIR10_rRNA.fa \
-    --reference SILVA_138_Arabidopsis.fa \
-    --kmer_size 12 \
-    --out       rRNA_comparison_report.tsv
-```
 
 ### Reference database sources
 
@@ -532,7 +515,7 @@ If a process uses a script from `bin/` that was modified after the process last 
 
 **Large genome index build failure (Lsa)**
 
-The lettuce genome (~2.7 Gb) may exceed standard bowtie2 index limits. The pipeline automatically retries with `--large-index`. If this fails, check available disk space (large indices require ~20 GB) and RAM (≥48 GB required).
+Reasonably large genomes (~2.7 Gb) may exceed standard bowtie2 index limits. The pipeline automatically retries with `--large-index`. If this fails, check available disk space (large indices require ~20 GB) and RAM (≥48 GB required).
 
 ### Verifying combined FASTA labels before a full run
 
@@ -557,18 +540,17 @@ Expected output for each organism:
 >hairpin
 >miRNA
 >rRNA
->TAS
 >TE
 >tRNA
+>...
+
 ```
 
 ---
 
 ## Citation
 
-If you use this pipeline in your research, please cite:
-
-> Lewis, S. *et al.* (2025). Ex-sRNA-NF: a Nextflow pipeline for extracellular small RNA diversity profiling across plant species. *[Journal TBD]*.
+If you use this pipeline, please cite this repository!
 
 Please also cite the underlying tools:
 
@@ -583,6 +565,6 @@ Please also cite the underlying tools:
 
 ## Author
 
-Scott Lewis — [your institution]
+Scott Lewis
 
 For questions or bug reports, please open an issue on GitHub.
