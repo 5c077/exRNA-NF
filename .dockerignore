@@ -1,0 +1,30 @@
+# Data directories — never include in Docker image
+exRNA_Species/
+genome/
+results/
+work/
+.nextflow/
+.nextflow.log
+.nextflow.log.*
+
+# Git files
+.git/
+.gitignore
+
+# Execution reports
+*.html
+*.mmd
+*.txt
+dag.*
+trace.*
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor files
+.vscode/
+.idea/
+*~
+*.swp

@@ -141,7 +141,44 @@ mamba activate ex-srna-nf
 ```bash
 nextflow run main_sRNA.nf --help
 ```
+## Deployment
 
+The pipeline can be run directly on a host system with all dependencies installed
+(see [Requirements](#requirements) and [Installation](#installation)), or inside
+a self-contained Docker container that bundles all dependencies into a portable
+image. Docker is recommended for cluster environments and to guarantee reproducibility in deployments accross different systems.
+
+### Building the Docker image
+
+A `Dockerfile` is provided in the repository root. Build the image from the
+repository directory:
+```bash
+docker build -t exRNA-nf:1.0.0 .
+```
+
+The image installs all dependencies defined in `environment.yml` at build time. Build time is approximately 10–20
+minutes on first run.
+
+### Running the pipeline in a container
+
+Input data and output directories on the host machine are mounted into the
+container at runtime using `-v`. The pipeline reads and writes through these
+mount points so all results appear on the host filesystem as normal:
+```bash
+DATA_DIR=/path/to/project_root
+
+docker run --rm \
+    -v ${DATA_DIR}/input:pipeline/input \
+    -v ${DATA_DIR}/genome:/pipeline/genome \
+    -v ${DATA_DIR}/results:/pipeline/results \
+    -v ${DATA_DIR}/work:/pipeline/work \
+    --cpus 36 \
+    --memory 128g \
+    ex-srna-nf:latest \
+    nextflow run main_sRNA.nf \
+        -c nextflow.config \
+        -resume
+```
 ---
 
 ## Repository structure
