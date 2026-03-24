@@ -16,7 +16,6 @@ A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversi
 - [Running the pipeline](#running-the-pipeline)
 - [Output structure](#output-structure)
 - [Diversity metrics](#diversity-metrics)
-- [Sanity checking annotation FASTAs](#sanity-checking-annotation-fastas)
 - [Troubleshooting](#troubleshooting)
 - [Citation](#citation)
 
