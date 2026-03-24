@@ -473,7 +473,7 @@ Normalized H interpretation guide:
 
 | Range | Interpretation |
 |---|---|
-| 0.0–0.3 | Single feature type strongly dominates (e.g. rRNA contamination) |
+| 0.0–0.3 | Single feature type strongly dominates (e.g. contamination) |
 | 0.3–0.6 | Moderate dominance, limited diversity |
 | 0.6–0.8 | Broad, healthy sRNA library — typical of good quality data |
 | 0.8–1.0 | Near-even distribution — verify library preparation quality |
