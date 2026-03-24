@@ -458,7 +458,7 @@ Three-section file containing Whittaker summary, Bray-Curtis dissimilarity matri
 ## Diversity metrics
 
 <p align="center">
-  <img src="assets/infographic.png" alt="Diversity Metrics" width="800"/>
+  <img src="assets/infographic.png" alt="Diversity Metrics" width=100%/>
 </p>
 
 ### Alpha diversity (within-sample)
