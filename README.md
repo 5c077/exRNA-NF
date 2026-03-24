@@ -108,7 +108,7 @@ All other Python dependencies use standard library functions (`csv`, `math`, `co
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/exRNA-NF.git
+git clone https://github.com/5c077/exRNA-NF.git
 cd exRNA-NF
 ```
 
