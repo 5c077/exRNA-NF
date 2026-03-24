@@ -402,9 +402,9 @@ results/
 ├── 04_size_distribution/         # Read length distributions
 │   ├── all_samples_size_distribution_counts.csv
 │   └── all_samples_size_distribution_rpm.csv
-├── 06_annotation_alignment/
+├── 05_annotation_alignment/
 │   └── combined/                 # BAMs aligned to combined annotation index
-├── 07_srna_diversity/
+├── 06_srna_diversity/
 │   ├── all_samples_srna_diversity.tsv      # Per-sample per-feature counts and RPM
 │   ├── all_samples_alpha_diversity.tsv     # Per-sample alpha diversity metrics
 │   └── all_samples_beta_diversity.tsv      # Pairwise beta diversity matrices
