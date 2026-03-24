@@ -202,7 +202,7 @@ exRNA-NF/
     └── compare_fasta.py
 ```
 
-> **Note:** Input data and output directories (`results/`, `work/`) are not stored in the repository. See [Input data organization](#input-data-organization) for the expected directory layout alongside the repository.
+> **Note:** Input data and output directories (`results/`, `work/`) are not stored in the repository. See [Input data organization](#input-data-organization) for the expected directory layout.
 
 ---
 
