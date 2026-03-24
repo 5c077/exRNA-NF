@@ -24,9 +24,9 @@ A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversi
 
 ## Overview
 
-Ex-sRNA-NF processes single-end small RNA sequencing data from extracellular fractions across multiple species in a single run. The pipeline performs adapter trimming, genome alignment, size distribution profiling, competitive alignment to a combined per-organism annotation index, and fractional feature-type quantification with alpha and beta diversity reporting.
+exRNA-NF processes single-end small RNA sequencing data from extracellular fractions across multiple species in a single run. The pipeline performs adapter trimming, genome alignment, size distribution profiling, competitive alignment to a combined per-organism annotation index, and fractional feature-type quantification with alpha and beta diversity reporting.
 
-The pipeline is designed around the principle of **competitive alignment**. All sRNA feature FASTAs for a given organism (miRNA, hairpin, cDNA, tRNA, rRNA, etc.) are merged into a single labeled index before alignment. This allows read alignments to compete across all feature types simultaneously, producing unbiased fractional counts and meaningful diversity estimates.
+The pipeline is designed using **competitive alignment**. All sRNA feature FASTAs for a given organism (miRNA, hairpin, cDNA, tRNA, rRNA, etc.) are merged into a single labeled index before alignment. This allows read alignments to compete across all feature types simultaneously, producing unbiased fractional counts for meaningful diversity estimates.
 
 ---
 
@@ -70,7 +70,7 @@ Raw FASTQ reads
 
 ## Requirements
 
-This pipeline uses minimal custom dependencies to maximize portability and speed of deployment.
+This pipeline uses minimal dependencies to maximize portability and speed of deployment.
 
 ### Software dependencies
 
@@ -93,13 +93,13 @@ This pipeline uses minimal custom dependencies to maximize portability and speed
 pysam
 ```
 
-All other Python dependencies use the standard library (`csv`, `math`, `collections`, `argparse`, `itertools`).
+All other Python dependencies use standard library functions (`csv`, `math`, `collections`, `argparse`, `itertools`).
 
 ### System allocations
 
 - **RAM**: 24–48 GB recommended (48 GB required for reasonably large genomes such as *Lactuca sativa*)
-- **CPU**: 8+ cores recommended; processes are configured to use up to 8 threads
-- **Storage**: ~50 GB per organism for genome indices; plan for 2–5× the size of your raw data for intermediate files
+- **CPU**: >=8 cores recommended; processes are configured to use up to 8 threads
+- **Storage**: ~50 GB per organism for genome indices; allocate 2–5× the size of your raw data for intermediate files
 
 ---
 
@@ -156,14 +156,14 @@ repository directory:
 docker build -t exRNA-nf:1.0.0 .
 ```
 
-The image installs all dependencies defined in `environment.yml` at build time. Build time is approximately 10–20
-minutes on first run.
+The image installs all dependencies defined in `environment.yml` at build time. Build time should be ~10–20
+minutes with the first run.
 
 ### Running the pipeline in a container
 
 Input data and output directories on the host machine are mounted into the
 container at runtime using `-v`. The pipeline reads and writes through these
-mount points so all results appear on the host filesystem as normal:
+mount points such that all results appear as expected on the host filesystem:
 ```bash
 DATA_DIR=/path/to/project_root
 
@@ -313,7 +313,7 @@ whittaker_beta_LSW|LSF    0.2011    34
 
 ### `--exclude_prefix` — exclude sample libraries
 
-Excludes libraries whose filenames start with any of the specified prefixes. Useful for excluding organisms from analysis without modifying the reads glob expression.
+Excludes libraries whose filenames start with any of the specified prefixes. Useful for excluding organisms from analysis without modifying the glob expression in configuration.
 
 ```bash
 nextflow run main_sRNA.nf --exclude_prefix "Aco"
@@ -486,7 +486,7 @@ Normalized H interpretation guide:
 | Bray-Curtis | Σ\|p₁ₖ−p₂ₖ\| / Σ(p₁ₖ+p₂ₖ) | 0–1 | Ordination, clustering, widely understood |
 | Aitchison | Euclidean in CLR space | 0 → ∞ | Statistically rigorous for compositional data |
 
-The **Aitchison distance** is a great primary metric for PERMANOVA and ordination. Use **Bray-Curtis** as a supplementary metric for downstream visualization.
+The **Aitchison distance** is great for PERMANOVA and ordination. Use **Bray-Curtis** as a supplementary metric for downstream visualization.
 
 ---
 
