@@ -2,7 +2,7 @@ process trimGalore {
     tag "${reads.simpleName}"
     cpus 4
     memory '4 GB'
-    publishDir "${params.outdir}/02_trimGalore", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/02_trimGalore", mode: 'symlink', overwrite: true
 
     input:
     path reads

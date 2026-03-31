@@ -2,7 +2,7 @@ process align_sRNA {
     tag "${sample_name}"
     cpus 8
     memory '24 GB'
-    publishDir "${params.outdir}/03_alignment", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/03_alignment", mode: 'symlink', overwrite: true
 
     input:
     tuple path(fastq), val(genome_name), path(index_files)

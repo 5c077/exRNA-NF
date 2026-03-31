@@ -2,7 +2,7 @@ process annotate_tRNA {
     tag "${genome_fasta.simpleName}"
     cpus 4
     memory '8 GB'
-    publishDir "${params.outdir}/annotations/tRNA", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/annotations/tRNA", mode: 'symlink', overwrite: true
 
     input:
     path genome_fasta

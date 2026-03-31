@@ -2,7 +2,7 @@ process alignToCombinedAnnotations {
     tag "${lib_name}"
     cpus 8
     memory '24 GB'
-    publishDir { "${params.outdir}/05_annotation_alignment/combined" }, mode: 'symlink', overwrite: false
+    publishDir { "${params.outdir}/05_annotation_alignment/combined" }, mode: 'symlink', overwrite: true
 
     input:
     tuple val(lib_name), val(sample_id), path(fastq), path(combined_fa), path(index_dir)

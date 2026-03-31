@@ -1,7 +1,7 @@
 process multiqc {
     cpus 2
     memory '2 GB'
-    publishDir "${params.outdir}/01_multiqc", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/01_multiqc", mode: 'symlink', overwrite: true
     
     input:
     path 'fastqc/*'

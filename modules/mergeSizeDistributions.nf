@@ -1,7 +1,7 @@
 process mergeSizeDistributions {
     cpus 1
     memory '2 GB'
-    publishDir "${params.outdir}/04_size_distribution", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/04_size_distribution", mode: 'symlink', overwrite: true
 
     input:
     path size_dist_counts_files

@@ -2,7 +2,7 @@ process quantify_sRNA_diversity {
     tag "${lib_name}"
     cpus 2
     memory '8 GB'
-    publishDir { "${params.outdir}/06_srna_diversity" }, mode: 'copy', overwrite: false
+    publishDir { "${params.outdir}/06_srna_diversity" }, mode: 'copy', overwrite: true
 
     input:
     tuple val(lib_name),

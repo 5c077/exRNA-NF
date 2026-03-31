@@ -2,7 +2,7 @@ process buildIndex {
     tag "${genome_fasta.simpleName}"
     cpus 8
     memory '8 GB'
-    publishDir "${params.outdir}/genome_indices", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/genome_indices", mode: 'symlink', overwrite: true
 
     input:
     path genome_fasta

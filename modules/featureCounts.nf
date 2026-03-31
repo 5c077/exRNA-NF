@@ -2,7 +2,7 @@ process featureCounts_sRNA {
     tag "${bam.simpleName}"
     cpus 4
     memory '8 GB'
-    publishDir "${params.outdir}/05_counts", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/05_counts", mode: 'symlink', overwrite: true
 
     input:
     path bam

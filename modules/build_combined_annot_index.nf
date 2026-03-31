@@ -2,7 +2,7 @@ process buildCombinedAnnotIndex {
     tag "${sample_id}"
     cpus 8
     memory '8 GB'
-    publishDir { "${params.outdir}/annotation_indices/combined" }, mode: 'symlink', overwrite: false
+    publishDir { "${params.outdir}/annotation_indices/combined" }, mode: 'symlink', overwrite: true
 
     input:
     // tuple( sample_id, [ fasta1, fasta2, ... ] )

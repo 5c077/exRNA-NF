@@ -2,7 +2,7 @@ process fastqc {
     tag "${reads.simpleName}"
     cpus 4
     memory '4 GB'
-    publishDir "${params.outdir}/00_fastqc", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/00_fastqc", mode: 'symlink', overwrite: true
 
     input:
     path reads

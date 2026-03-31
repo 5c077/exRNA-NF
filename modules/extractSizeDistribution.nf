@@ -2,7 +2,7 @@ process extractSizeDistribution {
     tag "${genome_bam.simpleName}"
     cpus 2
     memory '4 GB'
-    publishDir "${params.outdir}/04_size_distribution", mode: 'symlink', overwrite: false
+    publishDir "${params.outdir}/04_size_distribution", mode: 'symlink', overwrite: true
 
     input:
     // genome_bam    : BAM from align_sRNA (all reads mapped to genome)

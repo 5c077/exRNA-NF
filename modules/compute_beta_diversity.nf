@@ -1,7 +1,7 @@
 process computeBetaDiversity {
     cpus 1
     memory '4 GB'
-    publishDir { "${params.outdir}/06_srna_diversity" }, mode: 'copy', overwrite: false
+    publishDir { "${params.outdir}/06_srna_diversity" }, mode: 'copy', overwrite: true
 
     input:
     path diversity_tsv    // i.e. 'all_samples_srna_diversity.tsv'
