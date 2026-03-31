@@ -37,9 +37,6 @@ process annotate_rRNA {
         > ${genome_fasta.simpleName}_rRNA_with_seq.gff || true
     
     echo "Using Kingdom: \${KINGDOM}"
-
-    # Split GFF into annotation-only GFF and FASTA files
-    # The --incseq option embeds FASTA sequences after ##FASTA directive in GFF3
     
     # Extract GFF annotations (everything before ##FASTA)
     awk '/^##FASTA/,0{exit} {print}' ${genome_fasta.simpleName}_rRNA_with_seq.gff > ${genome_fasta.simpleName}_rRNA.gff 2>/dev/null || true

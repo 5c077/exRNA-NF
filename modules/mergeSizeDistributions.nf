@@ -15,59 +15,56 @@ process mergeSizeDistributions {
     """
     #!/usr/bin/env python3
     import csv
-    from collections import defaultdict
     import glob
+    from collections import defaultdict
 
     def merge_files(pattern, output_file):
-        # Read all individual CSV files
-        all_data = []
+        all_rows  = []   # list of (library, category, {size: value}) dicts
         all_sizes = set()
-        
-        for csv_file in glob.glob(pattern):
-            with open(csv_file, 'r') as f:
+
+        for csv_file in sorted(glob.glob(pattern)):
+            with open(csv_file, newline="") as f:
                 reader = csv.reader(f)
                 header = next(reader)
-                
-                if len(header) > 1:  # Not empty
-                    sizes = [int(x) for x in header[1:]]
-                    all_sizes.update(sizes)
-                    
-                    data_row = next(reader)
+
+                # Header format: library, Category, 10, 11, 12, ...
+                if len(header) < 3:
+                    continue
+
+                sizes = [int(x) for x in header[2:]]
+                all_sizes.update(sizes)
+
+                for data_row in reader:
+                    if len(data_row) < 3:
+                        continue
                     library_name = data_row[0]
-                    
-                    # Handle both integer counts and float RPM values
-                    values = {}
-                    for i in range(len(sizes)):
+                    category     = data_row[1]
+                    values       = {}
+                    for i, size in enumerate(sizes):
                         try:
-                            values[sizes[i]] = float(data_row[i+1])
+                            values[size] = float(data_row[i + 2])
                         except (ValueError, IndexError):
-                            values[sizes[i]] = 0
-                    
-                    all_data.append((library_name, values))
-        
-        # Write merged CSV
-        if all_data:
-            all_sizes_sorted = sorted(list(all_sizes))
-            
-            with open(output_file, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['library'] + all_sizes_sorted)
-                
-                for library_name, values in all_data:
-                    row = [library_name]
-                    for size in all_sizes_sorted:
-                        row.append(values.get(size, 0))
-                    writer.writerow(row)
-        else:
-            # Create empty file
-            with open(output_file, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['library'])
-    
-    # Merge counts files
+                            values[size] = 0
+                    all_rows.append((library_name, category, values))
+
+        if not all_rows:
+            with open(output_file, "w", newline="") as f:
+                csv.writer(f).writerow(["library", "Category"])
+            return
+
+        all_sizes_sorted = sorted(all_sizes)
+        header_out       = ["library", "Category"] + \
+                           [str(s) for s in all_sizes_sorted]
+
+        with open(output_file, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(header_out)
+            for library_name, category, values in all_rows:
+                row = [library_name, category]
+                row += [values.get(s, 0) for s in all_sizes_sorted]
+                writer.writerow(row)
+
     merge_files("*_size_dist_counts.csv", "all_samples_size_distribution_counts.csv")
-    
-    # Merge RPM files
-    merge_files("*_size_dist_rpm.csv", "all_samples_size_distribution_rpm.csv")
+    merge_files("*_size_dist_rpm.csv",    "all_samples_size_distribution_rpm.csv")
     """
 }

@@ -4,7 +4,7 @@ process computeBetaDiversity {
     publishDir { "${params.outdir}/06_srna_diversity" }, mode: 'copy', overwrite: false
 
     input:
-    path diversity_tsv    // all_samples_srna_diversity.tsv
+    path diversity_tsv    // i.e. 'all_samples_srna_diversity.tsv'
 
     output:
     path "bray_curtis_matrix.tsv",    emit: bray_curtis

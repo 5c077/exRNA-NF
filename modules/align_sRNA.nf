@@ -29,8 +29,6 @@ process align_sRNA {
         2> ${sample_name}_alignment_stats.txt
 
     # Convert to BAM and sort
-    #samtools view -@ ${task.cpus} -bS ${sample_name}.sam | \
-    #    samtools sort -@ ${task.cpus} -o ${sample_name}_sorted.bam
     #^Use this and uncomment below commands for more filtering
     samtools view -@ ${task.cpus} -bS ${sample_name}.sam | \
         samtools sort -@ ${task.cpus} -o ${sample_name}_final.bam

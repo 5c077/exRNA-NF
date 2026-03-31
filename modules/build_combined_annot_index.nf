@@ -22,8 +22,8 @@ process buildCombinedAnnotIndex {
     # Feature type is derived from the filename: <sample_id>_<feature>.fa
     # e.g. ath_miRNA.fa -> feature type = "miRNA"
     # The labeled header format is: >featureType|originalId
-    # This allows the quantification script to parse feature type from
-    # the BAM reference name directly.
+    # This allows the quantification script to parse feature type directly from
+    # the refence name in the BAM.
 
     > ${sample_id}_combined.fa
 
@@ -94,8 +94,6 @@ echo "Combined FASTA sequence count:"
 grep -c "^>" ${sample_id}_combined.fa
 
 # Attempt standard index build first, fall back to large index if it fails.
-# Large genomes (e.g. Lsa ~2.7Gb) with many TE sequences exceed bowtie1's
-# 4GB index limit and require 64-bit --large-index offsets (.ebwtl extension).
 
 echo "Attempting standard bowtie-build..."
 

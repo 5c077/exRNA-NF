@@ -9,7 +9,7 @@ process quantify_sRNA_diversity {
           path(bam),
           path(bai),
           path(combined_fa),
-          path(bowtie2_stats)        // add this
+          path(bowtie2_stats)
 
     output:
     path "${lib_name}_srna_diversity.tsv",    emit: diversity

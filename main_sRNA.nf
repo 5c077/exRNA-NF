@@ -69,7 +69,7 @@ def matchLibraryToIndex(library, indices_list) {
         
         def genome_prefix = libraryNameParts[0]
         
-        // Debug: print the structure
+        // Log for debug: print the structure
         log.debug "Processing library: ${libraryBaseName}, looking for genome: ${genome_prefix}"
         log.debug "Indices list type: ${indices_list.getClass()}, size: ${indices_list.size()}"
         
@@ -79,7 +79,7 @@ def matchLibraryToIndex(library, indices_list) {
         indices_list.eachWithIndex { index_item, idx ->
             log.debug "Index ${idx}: type=${index_item.getClass()}, content=${index_item}"
             
-            // Handle both list and tuple formats
+            // Handles both list and tuple formats
             def genome_name = index_item[0].toString()
             def index_files = index_item[1]
             
@@ -139,11 +139,6 @@ workflow {
     // ---------------------------------------------------------------------------
     // Combine all feature FASTAs per organism and build a single index
     // ---------------------------------------------------------------------------
-
-    // Collect all annotation FASTAs, keeping the organism sample_id as the key.
-    // Each emission is: tuple( sample_id, fasta_path )
-    // We group so each organism gets all its FASTAs in one channel item:
-    // tuple( sample_id, [ fasta1, fasta2, ... ] )
 
     ch_annot_ready = annotate_tRNA.out.tRNA_fasta
     .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) }
@@ -223,9 +218,45 @@ workflow {
     
     // Align reads
     align_sRNA(ch_matched)
-    
+
+    // Emit genome BAMs with a clean lib_name key for joining
+    ch_genome_bams_keyed = align_sRNA.out.bam
+        .map { bam ->
+            // e.g. Hsa_Serum_AWF_R1_S01_R1_001_trimmed_vs_Hsa_GRCh38_genome_final.bam
+            // lib_name = everything before "_vs_"
+            def lib_name = bam.simpleName
+                .replaceAll(/_vs_.*/, '')
+                .replaceAll(/_trimmed$/, '')
+            tuple(lib_name, bam)
+        }
+
+    ch_genome_bais_keyed = align_sRNA.out.index
+        .map { bai ->
+            def lib_name = bai.simpleName
+                .replaceAll(/_vs_.*/, '')
+                .replaceAll(/_trimmed$/, '')
+                .replaceAll(/\.bam$/, '')
+            tuple(lib_name, bai)
+        }
+
+    // Emit annotation BAMs with the same lib_name key
+    // ALIGN_TO_COMBINED_ANNOTATIONS emits: tuple val(lib_name), path(bam), path(bai), path(combined_fa), path(stats)
+    ch_annot_bams_keyed = alignToCombinedAnnotations.out.bam
+        .map { lib_name, bam, bai, combined_fa, stats ->
+            tuple(lib_name, bam, bai)
+        }
+
+    // Join genome BAM + BAI + annotation BAM + BAI on lib_name
+    // Result: tuple( lib_name, genome_bam, genome_bai, annot_bam, annot_bai )
+    ch_for_size_dist = ch_genome_bams_keyed
+        .join(ch_genome_bais_keyed,  by: 0)
+        .join(ch_annot_bams_keyed,   by: 0)
+        .map { lib_name, genome_bam, genome_bai, annot_bam, annot_bai ->
+            tuple(genome_bam, genome_bai, annot_bam, annot_bai)
+        }
+
     // Extract size distributions from aligned reads (both counts and RPM)
-    extractSizeDistribution(align_sRNA.out.bam)
+    extractSizeDistribution(ch_for_size_dist)
     
     // Merge all size distributions into single CSV files
     mergeSizeDistributions(

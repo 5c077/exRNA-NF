@@ -13,7 +13,6 @@ process trimGalore {
     path "*_fastqc.{zip,html}", emit: fastqc
 
     script:
-    // Build the trim_galore command based on parameters
     def adapter_cmd = ""
     if (params.use_small_rna_adapter) {
         adapter_cmd = "--small_rna"
@@ -34,8 +33,3 @@ process trimGalore {
         ${reads}
     """
 }
-// NOTE: The --length and --max_length parameters in trim_galore will filter reads
-// to only keep those within the specified range. If you want to see size distributions
-// outside this range, you'll need to adjust params.min_length and params.max_length
-// BEFORE running the pipeline, or remove these filters from trim_galore and handle
-// filtering downstream if needed.
