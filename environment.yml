@@ -304,4 +304,3 @@ dependencies:
   - zlib-ng=2.2.5=hde8ca8f_1
   - zstandard=0.19.0=py38h0a891b7_0
   - zstd=1.5.7=hb78ec9c_6
-prefix: /home/slewis/miniconda3/envs/exRNA
