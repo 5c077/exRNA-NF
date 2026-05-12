@@ -1,4 +1,7 @@
 ![exRNA-NF](assets/exRNA-NF_logo.gif)
+<p align="left">
+  <img src="assets/exRNA-NF_logo.gif" alt="Banner" width=1000/>
+</p>
 
 A Nextflow DSL2 pipeline for quality control, alignment, annotation, and diversity quantification of small RNA (sRNA) sequencing libraries across any number of genomes.
 
