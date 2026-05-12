@@ -593,7 +593,7 @@ Expected output for each organism:
 
 ## Citation
 
-If you use this pipeline, please cite this repository!
+**If you use this pipeline, please cite this repository!**
 
 Please also cite the underlying tools:
 
