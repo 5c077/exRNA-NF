@@ -27,6 +27,9 @@ exRNA-NF processes single-end small RNA sequencing data from extracellular fract
 
 The pipeline is designed using **competitive alignment**. All sRNA feature FASTAs for a given organism (miRNA, hairpin, cDNA, tRNA, rRNA, etc.) are merged into a single labeled index before alignment. This allows read alignments to compete across all feature types simultaneously, producing unbiased fractional counts for meaningful diversity estimates.
 
+<p align="center">
+  <img src="assets/diversityOverview.png" alt="Diversity Overview" width=1000/>
+</p>
 ---
 
 ## Pipeline summary
@@ -253,7 +256,7 @@ Library FASTQ files need to follow the pattern `<OrganismPrefix>_<...>.fastq.gz`
 
 | FASTQ prefix | Matches genome directory |
 |---|---|
-| `Col0_` | `Ath_TAIR10/` (via `Col0` → genome name starts with organism code) |
+| `Col0_` | Col0_Ath_TAIR10/` (via `Col0` → genome name starts with organism code) |
 | `Gma_` | `Gma_Wm82v4/` |
 | `Zma_` | `Zma_B73v5/` |
 
