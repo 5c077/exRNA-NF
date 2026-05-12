@@ -457,7 +457,7 @@ Three-section file containing Whittaker summary, Bray-Curtis dissimilarity matri
 
 ---
 
-## Diversity metrics
+##  Diversity output interpetation
 
 <p align="center">
   <img src="assets/infographic.png" alt="Diversity Metrics" width=1000/>
