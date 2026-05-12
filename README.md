@@ -482,7 +482,7 @@ Normalized H interpretation guide:
 | 0.6–0.8 | Broad, healthy sRNA library — typical of good quality data |
 | 0.8–1.0 | Near-even distribution — verify library preparation quality |
 
-### Beta diversity (between-sample)
+### Beta diversity (between-samples)
 
 | Metric | Formula | Range | Best for |
 |---|---|---|---|
@@ -490,7 +490,7 @@ Normalized H interpretation guide:
 | Bray-Curtis | Σ\|p₁ₖ−p₂ₖ\| / Σ(p₁ₖ+p₂ₖ) | 0–1 | Ordination, clustering, widely understood |
 | Aitchison | Euclidean in CLR space | 0 → ∞ | Statistically rigorous for compositional data |
 
-The **Aitchison distance** is great for PERMANOVA and ordination. Use **Bray-Curtis** as a supplementary metric for downstream visualization.
+NOTE: The **Aitchison distance** is great for PERMANOVA and ordination, while **Bray-Curtis**  is supplementary for downstream visualization.
 
 ---
 
