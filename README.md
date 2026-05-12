@@ -27,12 +27,13 @@ exRNA-NF processes single-end small RNA sequencing data from extracellular fract
 
 The pipeline is designed using **competitive alignment**. All sRNA feature FASTAs for a given organism (miRNA, hairpin, cDNA, tRNA, rRNA, etc.) are merged into a single labeled index before alignment. This allows read alignments to compete across all feature types simultaneously, producing unbiased fractional counts for meaningful diversity estimates.
 
----
+
 
 <p align="center">
   <img src="assets/diversityOverview.png" alt="Diversity Overview" width=1000/>
 </p>
 
+---
 
 ## Pipeline summary
 
