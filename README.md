@@ -1,5 +1,5 @@
 
-<img src="assets/banner.gif" alt="exRNA-NF Banner" width="50%"/>
+<img src="assets/banner.gif" alt="exRNA-NF Banner" width="80%"/>
 
 
 ## Table of contents
