@@ -259,7 +259,7 @@ Library FASTQ files need to follow the pattern `<OrganismPrefix>_<...>.fastq.gz`
 
 | FASTQ prefix | Matches genome directory |
 |---|---|
-| `Col0_` | Col0_Ath_TAIR10/` (via `Col0` → genome name starts with organism code) |
+| `Col0_` | `Col0_Ath_TAIR10/` ( Col0 → genome name starts with organism code) |
 | `Gma_` | `Gma_Wm82v4/` |
 | `Zma_` | `Zma_B73v5/` |
 
