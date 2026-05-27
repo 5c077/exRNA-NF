@@ -2,12 +2,11 @@ process extractSizeDistribution {
     tag "${genome_bam.simpleName}"
     cpus 2
     memory '4 GB'
-    publishDir "${params.outdir}/04_size_distribution", mode: 'symlink', overwrite: true
+    publishDir "${params.outdir}/04_size_distribution", mode: 'symlink', overwrite: false
 
     input:
-    // genome_bam    : BAM from align_sRNA (all reads mapped to genome)
-    // annot_bam     : BAM from ALIGN_TO_COMBINED_ANNOTATIONS (reads mapped to
-    //                 combined feature index, reference names = featureType|seqId)
+    // CHANGED: input is now a tuple of genome + annotation BAMs
+    // previously accepted only a single genome BAM path
     tuple path(genome_bam), path(genome_bai),
           path(annot_bam),  path(annot_bai)
 
@@ -44,13 +43,11 @@ process extractSizeDistribution {
 
     # ------------------------------------------------------------------
     # Step 2: Per-feature size distributions from combined annotation BAM
-    # Reference names follow the format: featureType|sequenceId
-    # A read may align to multiple feature types (fractional counting);
-    # for size distribution purposes we count it once per feature type hit.
+    # Reference names follow featureType|sequenceId format
     # ------------------------------------------------------------------
-    feature_counts = defaultdict(lambda: defaultdict(int))   # {feature: {length: count}}
-    read_features  = defaultdict(set)                         # {read_name: {feature_types}}
-    read_lengths   = {}                                       # {read_name: length}
+    feature_counts = defaultdict(lambda: defaultdict(int))
+    read_features  = defaultdict(set)    # {read_name: {feature_types}}
+    read_lengths   = {}                  # {read_name: length}
 
     try:
         bam = pysam.AlignmentFile(annot_bam_path, "rb", check_sq=False)
@@ -68,21 +65,38 @@ process extractSizeDistribution {
         print(f"Error reading annotation BAM: {e}")
 
     # Assign each read to every feature type it mapped to
-    # (mirrors the fractional counting logic in quantify_srna_diversity.py)
     for rname, features in read_features.items():
         length = read_lengths[rname]
         for ft in features:
             feature_counts[ft][length] += 1
 
     # ------------------------------------------------------------------
-    # Step 3: Determine global size range across all categories
+    # Step 3: Other size distribution
+    # ------------------------------------------------------------------
+    other_counts = defaultdict(int)
+
+    try:
+        bam = pysam.AlignmentFile(genome_bam_path, "rb", check_sq=False)
+        for read in bam:
+            if not read.is_unmapped:
+                if read.query_name not in read_features:   # ADDED: key check
+                    other_counts[read.query_length] += 1
+        bam.close()
+    except Exception as e:
+        print(f"Error computing Other from genome BAM: {e}")
+
+    # ADDED: inject Other into feature_counts if any reads qualify
+    if other_counts:
+        feature_counts["Other"] = other_counts
+
+    # ------------------------------------------------------------------
+    # Step 4: Determine global size range across all categories
     # ------------------------------------------------------------------
     all_lengths = set(total_counts.keys())
     for ft_counts in feature_counts.values():
         all_lengths.update(ft_counts.keys())
 
     if not all_lengths:
-        # Write empty files so the pipeline does not fail
         for suffix in ["_size_dist_counts.csv", "_size_dist_rpm.csv"]:
             with open(f"{library_name}{suffix}", "w") as f:
                 f.write("library,Category\\n")
@@ -93,16 +107,21 @@ process extractSizeDistribution {
     size_range = list(range(min_size, max_size + 1))
 
     # ------------------------------------------------------------------
-    # Step 4: Build all rows — Total first, then feature types alphabetically
+    # Step 5: Build all rows
     # ------------------------------------------------------------------
-    # Each row: (library_name, category_label, {length: count})
-    rows = [("Total", total_counts)]
-    for ft in sorted(feature_counts.keys()):
+    rows = [("Total", total_counts)]                          # UNCHANGED
+
+    if "Other" in feature_counts:                            # ADDED
+        rows.append(("Other", feature_counts.pop("Other")))  # ADDED
+
+    for ft in sorted(feature_counts.keys()):                 # CHANGED: was only Total
         rows.append((ft, feature_counts[ft]))
 
     header = ["library", "Category"] + [str(s) for s in size_range]
 
-    # Write counts CSV
+    # ------------------------------------------------------------------
+    # Step 6: Write counts CSV
+    # ------------------------------------------------------------------
     with open(f"{library_name}_size_dist_counts.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)
@@ -111,7 +130,9 @@ process extractSizeDistribution {
             row += [counts.get(s, 0) for s in size_range]
             writer.writerow(row)
 
-    # Write RPM CSV (denominator = total reads from genome BAM)
+    # ------------------------------------------------------------------
+    # Step 7: Write RPM CSV
+    # ------------------------------------------------------------------
     with open(f"{library_name}_size_dist_rpm.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)

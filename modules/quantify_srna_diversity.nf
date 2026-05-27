@@ -6,10 +6,13 @@ process quantify_sRNA_diversity {
 
     input:
     tuple val(lib_name),
-          path(bam),
-          path(bai),
+          path(annot_bam),
+          path(annot_bai),
           path(combined_fa),
-          path(bowtie2_stats)
+          path(bowtie2_stats),
+          path(genome_bam),       //Added for "other" calc.
+          path(genome_bai)        //
+
 
     output:
     path "${lib_name}_srna_diversity.tsv",    emit: diversity
@@ -19,9 +22,10 @@ process quantify_sRNA_diversity {
     """
     quantify_srna_diversity.py \
         --sample_id     ${lib_name} \
-        --bam           ${bam} \
+        --bam           ${annot_bam} \
         --combined_fa   ${combined_fa} \
         --bowtie2_stats ${bowtie2_stats} \
+        --genome_bam    ${genome_bam} \
         --out           ${lib_name}_srna_diversity.tsv \
         --metrics       ${lib_name}_diversity_metrics.tsv
     """

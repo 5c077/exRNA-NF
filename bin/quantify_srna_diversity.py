@@ -14,6 +14,8 @@ def parse_args():
     parser.add_argument("--combined_fa", required=True,
                         help="Labeled combined FASTA used to build the bowtie index. "
                              "Headers must follow the format: >featureType|sequenceId")
+    parser.add_argument("--genome_bam",    required=True,
+                        help="Whole-genome BAM from align_sRNA")
     parser.add_argument("--bowtie2_stats", required=True)
     parser.add_argument("--out",         default="srna_diversity.tsv")
     parser.add_argument("--metrics",     default="diversity_metrics.tsv")
@@ -50,6 +52,24 @@ def parse_bowtie2_total_reads(stats_path):
               file=sys.stderr)
     return 0
 
+def count_genome_mapped_reads(genome_bam_path):
+    """
+    Count total reads mapped anywhere in the genome BAM.
+    This is the superset from which all feature-type counts are drawn.
+    Used to compute the Other category:
+        Other = genome_mapped_reads - total_annotation_mapped_reads
+    """
+    total = 0
+    try:
+        bam = pysam.AlignmentFile(genome_bam_path, "rb")
+        for aln in bam.fetch(until_eof=True):
+            if not aln.is_unmapped:
+                total += 1
+        bam.close()
+    except Exception as e:
+        print(f"[WARN] Could not read genome BAM {genome_bam_path}: {e}",
+              file=sys.stderr)
+    return total
 # -----------------------------------------------------------------------------
 # Label map from combined FASTA
 # -----------------------------------------------------------------------------
@@ -113,7 +133,7 @@ def collect_read_hits(bam_path, label_map):
 # Fractional counting
 # -----------------------------------------------------------------------------
 
-def compute_fractional_counts(read_hits, read_abundance):
+def compute_fractional_counts(read_hits, read_abundance, genome_mapped_reads):
     feature_counts = defaultdict(float)
     feature_unique = defaultdict(float)
     total_reads    = 0.0
@@ -127,6 +147,11 @@ def compute_fractional_counts(read_hits, read_abundance):
             feature_counts[ft] += share
             if len(hit_types) == 1:
                 feature_unique[ft] += abundance
+
+    other_count = max(0.0, genome_mapped_reads - total_reads)
+    if other_count > 0:
+        feature_counts["Other"] = other_count
+        feature_unique["Other"] = other_count
 
     return feature_counts, feature_unique, total_reads
 
@@ -235,21 +260,32 @@ def main():
     args      = parse_args()
     label_map = build_label_map(args.combined_fa)
 
-    # Parse total library size from bowtie2 stats
-    total_library_reads = parse_bowtie2_total_reads(args.bowtie2_stats)
+    total_library_reads  = parse_bowtie2_total_reads(args.bowtie2_stats)
+    genome_mapped_reads  = count_genome_mapped_reads(args.genome_bam)
+
+    print(f"[{args.sample_id}] Library reads:  {total_library_reads}",
+          file=sys.stderr)
+    print(f"[{args.sample_id}] Genome mapped:  {genome_mapped_reads}",
+          file=sys.stderr)
 
     read_hits, read_abundance = collect_read_hits(args.bam, label_map)
-    feature_counts, feature_unique, total_reads = compute_fractional_counts(
-        read_hits, read_abundance
-    )
+
+    feature_counts, feature_unique, total_annot_reads = \
+        compute_fractional_counts(read_hits, read_abundance, genome_mapped_reads)
+
+    other = feature_counts.get("Other", 0.0)
+    print(f"[{args.sample_id}] Annot mapped:   {total_annot_reads:.0f}",
+          file=sys.stderr)
+    print(f"[{args.sample_id}] Other:          {other:.0f}",
+          file=sys.stderr)
 
     write_counts(
         args.sample_id, feature_counts, feature_unique,
-        total_reads, total_library_reads, args.out      # add total_library_reads
+        total_annot_reads, total_library_reads, args.out
     )
     write_metrics(
         args.sample_id, feature_counts,
-        total_reads, total_library_reads, args.metrics  # add total_library_reads
+        total_annot_reads, total_library_reads, args.metrics
     )
     print(f"[{args.sample_id}] Done -> {args.out} | {args.metrics}")
 

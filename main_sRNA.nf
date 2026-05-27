@@ -113,49 +113,44 @@ def matchLibraryToIndex(library, indices_list) {
 // =============================================================================
 // WORKFLOW
 // =============================================================================
-
 workflow {
-    // Create results directory
     file(params.outdir).mkdirs()
-    
-    // Quality control on raw reads
+
+    // --- QC ---
     ch_fastqc = fastqc(ch_sRNA_reads)
     multiqc(ch_fastqc.collect())
-    
-    // Trim adapters and filter by length
+
+    // --- Trimming ---
     trimGalore(ch_sRNA_reads)
     ch_trimmed = trimGalore.out.trimmed_reads
-    
-    // Build genome indices
+
+    // --- Genome indexing ---
     ch_indices = buildIndex(ch_genomes)
 
-    // Annotate tRNA and rRNA in genomes (optional - can be run in parallel)
+    // --- Annotation ---
     annotate_tRNA(ch_genomes)
     annotate_rRNA(ch_genomes)
-
-    // Other small RNA annotations have been compiled independently, copy them over to the annotations directory
     portAnnotations(ch_genomes)
 
-    // ---------------------------------------------------------------------------
-    // Combine all feature FASTAs per organism and build a single index
-    // ---------------------------------------------------------------------------
-
+    // --- Combined annotation index ---
     ch_annot_ready = annotate_tRNA.out.tRNA_fasta
-    .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) }
-    .mix(annotate_rRNA.out.rRNA_fasta
-        .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) })
-    .mix(portAnnotations.out.hairpin_fasta)
-    .mix(portAnnotations.out.miRNA_fasta)
-    .mix(portAnnotations.out.TAS_fasta)
-    .mix(portAnnotations.out.TE_fasta)
-    .mix(portAnnotations.out.cDNA_fasta)
-    .groupTuple(by: 0)
+        .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) }
+        .mix(annotate_rRNA.out.rRNA_fasta
+            .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) })
+        .mix(portAnnotations.out.miRNA_fasta)
+        .mix(portAnnotations.out.TAS_fasta)
+        .mix(portAnnotations.out.TE_fasta)
+        .mix(portAnnotations.out.UTR5_fasta)
+        .mix(portAnnotations.out.UTR3_fasta)
+        .mix(portAnnotations.out.CDS_fasta)
+        .mix(portAnnotations.out.lncRNA_fasta)
+        .mix(portAnnotations.out.snRNA_fasta)
+        .mix(portAnnotations.out.snoRNA_fasta)
+        .groupTuple(by: 0)
 
     buildCombinedAnnotIndex(ch_annot_ready)
 
-    // ---------------------------------------------------------------------------
-    // Match trimmed reads to the correct organism's combined index
-    // ---------------------------------------------------------------------------
+    // --- Match trimmed reads to combined annotation index ---
     ch_trimmed
         .combine(buildCombinedAnnotIndex.out.index)
         .map { fastq, sample_id, combined_fa, index_files ->
@@ -163,7 +158,6 @@ workflow {
                 .replaceAll(/_trimmed$/, '')
                 .replaceAll(/_val_[12]$/, '')
             def libPrefix = libBase.split('_')[0]
-
             if (sample_id.startsWith(libPrefix)) {
                 log.info "Matched ${libBase} to combined annotation index ${sample_id}"
                 return tuple(libBase, sample_id, fastq, combined_fa, index_files)
@@ -175,36 +169,15 @@ workflow {
 
     alignToCombinedAnnotations(ch_matched_combined_annot)
 
-    // ---------------------------------------------------------------------------
-    // Quantify fractional counts and diversity per sample
-    // ---------------------------------------------------------------------------
-
-    quantify_sRNA_diversity(
-        alignToCombinedAnnotations.out.bam
-    ) 
-
-    // Merge all fractional counts and diversity indices for each file generated
-    mergeDiversityOutputs(
-        quantify_sRNA_diversity.out.diversity.collect(),
-        quantify_sRNA_diversity.out.metrics.collect()
-    )
-    // Compute the Beta (inter-sample) diversity after primary Alpha diversity metrics are compiled via the merge function
-    computeBetaDiversity(
-    mergeDiversityOutputs.out.diversity
-    )
-    
-    // Create all combinations of libraries and indices, then filter for matches
+    // --- Genome alignment ---
     ch_trimmed
         .combine(ch_indices)
         .map { library, genome_name, index_files ->
-            // Get library prefix
             def libraryBaseName = library.simpleName.toString()
             libraryBaseName = libraryBaseName.replaceAll(/_trimmed$/, '')
             libraryBaseName = libraryBaseName.replaceAll(/_val_[12]$/, '')
             def libraryNameParts = libraryBaseName.split('_')
             def genome_prefix = libraryNameParts[0]
-            
-            // Check if genome name starts with library prefix
             if (genome_name.startsWith(genome_prefix)) {
                 log.info "Matched library ${libraryBaseName} to genome ${genome_name}"
                 return tuple(library, genome_name, index_files)
@@ -215,15 +188,12 @@ workflow {
         }
         .filter { it != null }
         .set { ch_matched }
-    
-    // Align reads
+
     align_sRNA(ch_matched)
 
-    // Emit genome BAMs with a clean lib_name key for joining
+    // --- Key genome BAMs for joining ---
     ch_genome_bams_keyed = align_sRNA.out.bam
         .map { bam ->
-            // e.g. Hsa_Serum_AWF_R1_S01_R1_001_trimmed_vs_Hsa_GRCh38_genome_final.bam
-            // lib_name = everything before "_vs_"
             def lib_name = bam.simpleName
                 .replaceAll(/_vs_.*/, '')
                 .replaceAll(/_trimmed$/, '')
@@ -239,31 +209,51 @@ workflow {
             tuple(lib_name, bai)
         }
 
-    // Emit annotation BAMs with the same lib_name key
-    // ALIGN_TO_COMBINED_ANNOTATIONS emits: tuple val(lib_name), path(bam), path(bai), path(combined_fa), path(stats)
+    // --- Key annotation BAMs for joining ---
     ch_annot_bams_keyed = alignToCombinedAnnotations.out.bam
         .map { lib_name, bam, bai, combined_fa, stats ->
             tuple(lib_name, bam, bai)
         }
 
-    // Join genome BAM + BAI + annotation BAM + BAI on lib_name
-    // Result: tuple( lib_name, genome_bam, genome_bai, annot_bam, annot_bai )
+    // --- Join annotation + genome BAMs for quantification ---
+    ch_for_quantify = alignToCombinedAnnotations.out.bam
+        .map { lib_name, annot_bam, annot_bai, combined_fa, stats ->
+            tuple(lib_name, annot_bam, annot_bai, combined_fa, stats)
+        }
+        .join(ch_genome_bams_keyed, by: 0)
+        .join(ch_genome_bais_keyed, by: 0)
+        .map { lib_name, annot_bam, annot_bai, combined_fa, stats,
+               genome_bam, genome_bai ->
+            tuple(lib_name, annot_bam, annot_bai, combined_fa, stats,
+                  genome_bam, genome_bai)
+        }
+
+    // --- Quantification and diversity ---
+    quantify_sRNA_diversity(ch_for_quantify)
+
+    mergeDiversityOutputs(
+        quantify_sRNA_diversity.out.diversity.collect(),
+        quantify_sRNA_diversity.out.metrics.collect()
+    )
+
+    computeBetaDiversity(
+        mergeDiversityOutputs.out.diversity
+    )
+
+    // --- Size distributions ---
     ch_for_size_dist = ch_genome_bams_keyed
-        .join(ch_genome_bais_keyed,  by: 0)
-        .join(ch_annot_bams_keyed,   by: 0)
+        .join(ch_genome_bais_keyed, by: 0)
+        .join(ch_annot_bams_keyed,  by: 0)
         .map { lib_name, genome_bam, genome_bai, annot_bam, annot_bai ->
             tuple(genome_bam, genome_bai, annot_bam, annot_bai)
         }
 
-    // Extract size distributions from aligned reads (both counts and RPM)
     extractSizeDistribution(ch_for_size_dist)
-    
-    // Merge all size distributions into single CSV files
+
     mergeSizeDistributions(
         extractSizeDistribution.out.size_dist_counts.collect(),
         extractSizeDistribution.out.size_dist_rpm.collect()
     )
-
 }
 
 workflow.onComplete {
