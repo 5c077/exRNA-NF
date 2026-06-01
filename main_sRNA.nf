@@ -137,15 +137,21 @@ workflow {
         .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) }
         .mix(annotate_rRNA.out.rRNA_fasta
             .map { sample_id, fasta -> tuple(sample_id.replace('_genome', ''), fasta) })
-        .mix(portAnnotations.out.miRNA_fasta)
-        .mix(portAnnotations.out.TAS_fasta)
-        .mix(portAnnotations.out.TE_fasta)
-        .mix(portAnnotations.out.UTR5_fasta)
-        .mix(portAnnotations.out.UTR3_fasta)
-        .mix(portAnnotations.out.CDS_fasta)
-        .mix(portAnnotations.out.lncRNA_fasta)
-        .mix(portAnnotations.out.snRNA_fasta)
-        .mix(portAnnotations.out.snoRNA_fasta)
+//        .mix(portAnnotations.out.miRNA_fasta)
+//        .mix(portAnnotations.out.TAS_fasta)
+//        .mix(portAnnotations.out.TE_fasta)
+//        .mix(portAnnotations.out.UTR5_fasta)
+//        .mix(portAnnotations.out.UTR3_fasta)
+//        .mix(portAnnotations.out.CDS_fasta)
+//        .mix(portAnnotations.out.lncRNA_fasta)
+//        .mix(portAnnotations.out.snRNA_fasta)
+//        .mix(portAnnotations.out.snoRNA_fasta)
+        .mix(
+        // transpose splits tuple(sample_id, [fa1, fa2, fa3, ...])
+        // into individual tuple(sample_id, fa1), tuple(sample_id, fa2), etc.
+        portAnnotations.out.annotation_fastas
+            .transpose()
+        )
         .groupTuple(by: 0)
 
     buildCombinedAnnotIndex(ch_annot_ready)
