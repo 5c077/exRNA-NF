@@ -770,6 +770,6 @@ Please also cite the underlying tools:
 
 ## Author
 
-Scott Lewis
+Scott Lewis, PhD
 
 For questions or bug reports, please open an issue on GitHub.
