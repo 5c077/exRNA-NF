@@ -20,6 +20,8 @@ include { buildCombinedAnnotIndex       } from './modules/build_combined_annot_i
 include { alignToCombinedAnnotations    } from './modules/align_to_combined_annotations'
 include { mergeDiversityOutputs         } from './modules/merge_diversity_outputs'
 include { computeBetaDiversity          } from './modules/compute_beta_diversity'
+include { COUNT_SRNA_FEATURES           } from './modules/count_srna_features'
+include { MERGE_SRNA_FEATURE_COUNTS     } from './modules/merge_srna_feature_counts'
 
 // Parameters: see ./nextflow.config
 
@@ -236,6 +238,24 @@ workflow {
 
     // --- Quantification and diversity ---
     quantify_sRNA_diversity(ch_for_quantify)
+    // ---------------------------------------------------------------------------
+    // Per-feature-name abundance counting
+    // Re-uses the same annotation BAM channel as quantify_sRNA_diversity
+    // but does not require the genome BAM since Other is not counted per-name
+    // ---------------------------------------------------------------------------
+
+    // Build the input channel from alignToCombinedAnnotations output
+    // Tuple: ( lib_name, annot_bam, annot_bai, combined_fa, bowtie2_stats )
+    ch_for_feature_counts = alignToCombinedAnnotations.out.bam
+        .map { lib_name, annot_bam, annot_bai, combined_fa, stats ->
+            tuple(lib_name, annot_bam, annot_bai, combined_fa, stats)
+        }
+
+    COUNT_SRNA_FEATURES(ch_for_feature_counts)
+
+    MERGE_SRNA_FEATURE_COUNTS(
+        COUNT_SRNA_FEATURES.out.feature_counts.collect()
+    )
 
     mergeDiversityOutputs(
         quantify_sRNA_diversity.out.diversity.collect(),
